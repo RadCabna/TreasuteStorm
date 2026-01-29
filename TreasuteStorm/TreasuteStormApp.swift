@@ -11,7 +11,11 @@ import SwiftUI
 struct TreasuteStormApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
         }
     }
+}
+
+#Preview {
+    RootView()
 }
