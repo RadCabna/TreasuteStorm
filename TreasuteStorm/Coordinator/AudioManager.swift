@@ -14,38 +14,28 @@ class AudioManager: ObservableObject {
     }
     
     private func setupAudio() {
-        // Configure audio session
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print("Failed to set up audio session: \(error.localizedDescription)")
-        }
+        } catch {}
         
         guard let url = Bundle.main.url(forResource: "musicMain", withExtension: "mp3") else {
-            print("Audio file not found: musicMain.mp3")
             return
         }
         
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
-            audioPlayer?.numberOfLoops = -1  // Infinite loop (-1 means loop forever)
+            audioPlayer?.numberOfLoops = -1
             audioPlayer?.prepareToPlay()
-            
-            // Set initial volume
             audioPlayer?.volume = Float(settings.volumeLevel)
             
-            // Don't start playing by default (music is off by default)
             if settings.isMusicOn {
                 audioPlayer?.play()
             }
-        } catch {
-            print("Error loading audio file: \(error.localizedDescription)")
-        }
+        } catch {}
     }
     
     private func setupObservers() {
-        // Observe music on/off changes
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleMusicToggle),
@@ -53,7 +43,6 @@ class AudioManager: ObservableObject {
             object: nil
         )
         
-        // Observe volume changes
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleVolumeChange),
@@ -61,7 +50,6 @@ class AudioManager: ObservableObject {
             object: nil
         )
         
-        // Observe app lifecycle events
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleAppWillResignActive),
@@ -90,14 +78,12 @@ class AudioManager: ObservableObject {
     }
     
     @objc private func handleAppWillResignActive() {
-        // Keep music playing when app goes to background if music is on
         if !settings.isMusicOn {
             pause()
         }
     }
     
     @objc private func handleAppDidBecomeActive() {
-        // Resume music if it should be playing
         if settings.isMusicOn && audioPlayer?.isPlaying == false {
             play()
         }

@@ -8,36 +8,33 @@ class OrientationManager: ObservableObject {
     static var shared: OrientationManager = .init()
     
     func lockToLandscape() {
-        DispatchQueue.main.async {
-            self.isHorizontalLock = true
-            self.forceUpdateOrientation()
-        }
+        isHorizontalLock = true
+        forceUpdateOrientation()
     }
     
     func unlockAllOrientations() {
-        DispatchQueue.main.async {
-            self.isHorizontalLock = false
-            self.forceUpdateOrientation()
-        }
+        isHorizontalLock = false
+        forceUpdateOrientation()
     }
     
     private func forceUpdateOrientation() {
-        if #available(iOS 16.0, *) {
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
-                print("No window scene found")
-                return
-            }
-            let orientations: UIInterfaceOrientationMask = isHorizontalLock ? .landscape : .allButUpsideDown
-            windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: orientations)) { error in
-                print("Orientation update error: \(error.localizedDescription)")
-            }
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             
-            // Также обновляем все window controllers
-            for window in windowScene.windows {
-                window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
-            }
-        } else {
+            // Вызываем обновление ориентации
             UIViewController.attemptRotationToDeviceOrientation()
+            
+            // Для iOS 16+ дополнительно используем requestGeometryUpdate
+            if #available(iOS 16.0, *) {
+                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                    return
+                }
+                let orientations: UIInterfaceOrientationMask = self.isHorizontalLock ? .landscape : .allButUpsideDown
+                windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: orientations))
+                
+                // Принудительно обновляем статус бар (только для iOS 16+)
+                UIApplication.shared.windows.first?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+            }
         }
     }
 }

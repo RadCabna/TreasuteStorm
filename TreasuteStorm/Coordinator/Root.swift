@@ -10,9 +10,8 @@ enum LoaderStatus {
 struct RootView: View {
     @State private var status: LoaderStatus = .LOADING
     @ObservedObject private var nav: NavGuard = NavGuard.shared
-    let url: URL = URL(string: "https://atreasstorm.pro/profile?page=test")!
-    
     @ObservedObject private var orientationManager: OrientationManager = OrientationManager.shared
+    let url: URL = URL(string: "https://atreasstorm.pro/profile")!
     
     var body: some View {
         GeometryReader { geometry in
@@ -23,9 +22,19 @@ struct RootView: View {
                     case .LOADING:
                         Loading()
                             .edgesIgnoringSafeArea(.all)
+                            .onAppear {
+                                DispatchQueue.main.async {
+                                    orientationManager.lockToLandscape()
+                                }
+                            }
                     case .MAIN:
                         Main()
                             .ignoresSafeArea()
+                            .onAppear {
+                                DispatchQueue.main.async {
+                                    orientationManager.lockToLandscape()
+                                }
+                            }
                     case .ONBOARDING:
                         EmptyView()
                     }
@@ -35,18 +44,6 @@ struct RootView: View {
                             .edgesIgnoringSafeArea(.all)
                         
                         GameLoader_1E6704B4Overlay(data: GameLoader_1E6704B4Model(url: url))
-                            .onAppear {
-                                // Разблокируем все ориентации при появлении WebView
-                                DispatchQueue.main.async {
-                                    orientationManager.unlockAllOrientations()
-                                }
-                            }
-                            .onDisappear {
-                                // Блокируем на landscape при исчезновении WebView
-                                DispatchQueue.main.async {
-                                    orientationManager.lockToLandscape()
-                                }
-                            }
                     }
                 }
             }
@@ -56,12 +53,8 @@ struct RootView: View {
             Task {
                 let result = await GameLoader_1E6704B4StatusChecker().checkStatus(url: url)
                 if result {
-                    // WebView - разрешаем все ориентации
-                    orientationManager.unlockAllOrientations()
                     self.status = .DONE
                 } else {
-                    // Основное приложение - только landscape ориентация
-                    orientationManager.lockToLandscape()
                     DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
                         withAnimation(.easeInOut(duration: 0.5)) {
                             nav.currentScreen = .MAIN
@@ -69,7 +62,6 @@ struct RootView: View {
                     }
                     self.status = .ERROR
                 }
-                print("WebView status check result: \(result)")
             }
         }
     }

@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		DDEC71FF2F2B98B70036D2DA /* A.Treasure Storm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "A.Treasure Storm.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDEC71FF2F2B98B70036D2DA /* A Treasure Storm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "A Treasure Storm.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDEC72D12F2D47FD0036D2DA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -59,7 +59,7 @@
 		DDEC72002F2B98B70036D2DA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DDEC71FF2F2B98B70036D2DA /* A.Treasure Storm.app */,
+				DDEC71FF2F2B98B70036D2DA /* A Treasure Storm.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -86,7 +86,7 @@
 			packageProductDependencies = (
 			);
 			productName = TreasuteStorm;
-			productReference = DDEC71FF2F2B98B70036D2DA /* A.Treasure Storm.app */;
+			productReference = DDEC71FF2F2B98B70036D2DA /* A Treasure Storm.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -286,7 +286,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.atreasure.storm;
-				PRODUCT_NAME = "A.Treasure Storm";
+				PRODUCT_NAME = "A Treasure Storm";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -325,7 +325,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.atreasure.storm;
-				PRODUCT_NAME = "A.Treasure Storm";
+				PRODUCT_NAME = "A Treasure Storm";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

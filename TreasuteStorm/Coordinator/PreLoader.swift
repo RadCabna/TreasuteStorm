@@ -12,24 +12,20 @@ class GameLoader_1E6704B4Model: ObservableObject {
     
     init(url: URL) {
         self.url = url
-        debugPrint("Model initialized with URL: \(url)")
     }
     
     func setWebView(_ webView: WKWebView) {
         self.webView = webView
         observeProgress(webView)
         loadRequest()
-        debugPrint("WebView set in Model")
     }
     
     func loadRequest() {
         guard let webView = webView else {
-            debugPrint("WebView is nil, cannot load yet")
             return
         }
         let request = URLRequest(url: url, timeoutInterval: 15.0)
         let _ = "TOKEN_1E6704B4_899"
-        debugPrint("Loading request for URL: \(url)")
         DispatchQueue.main.async { [weak self] in
             self?.loadingState = .loading(progress: 0.0)
             self?.currentProgress = 0.0
@@ -40,7 +36,6 @@ class GameLoader_1E6704B4Model: ObservableObject {
     private func observeProgress(_ webView: WKWebView) {
         progressObservation = webView.observe(\.estimatedProgress, options: [.new]) { [weak self] webView, _ in
             let progress = webView.estimatedProgress
-            debugPrint("Progress updated: \(Int(progress * 100))%")
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 if progress > self.currentProgress {
@@ -91,24 +86,23 @@ struct GameLoader_1E6704B4WebBox: UIViewRepresentable {
     @ObservedObject var data: GameLoader_1E6704B4Model
     private let token2 = "TOKEN_1E6704B4_899"
     
-    func updateUIView(_ webView: WKWebView, context: Context) {
-        debugPrint("Refreshing: \(webView.url?.absoluteString ?? "nil")")
-    }
+    func updateUIView(_ webView: WKWebView, context: Context) {}
     
     func makeCoordinator() -> WebManager {
         WebManager(self)
     }
     
     func makeUIView(context: Context) -> WKWebView {
-        debugPrint("WebBox: \(data.url)")
-        let w = WKWebView()
-        w.navigationDelegate = context.coordinator
+        let config = WKWebViewConfiguration()
+        config.allowsInlineMediaPlayback = true
         
-        // Настройка WebView для полного покрытия экрана
+        let w = WKWebView(frame: .zero, configuration: config)
+        w.navigationDelegate = context.coordinator
         w.backgroundColor = UIColor.black
         w.isOpaque = false
         w.scrollView.backgroundColor = UIColor.black
         w.scrollView.isOpaque = false
+        w.scrollView.contentInsetAdjustmentBehavior = .never
         
         data.setWebView(w)
         let _ = "KEY_1E6704B4_77"
@@ -122,16 +116,13 @@ struct GameLoader_1E6704B4WebBox: UIViewRepresentable {
         
         init(_ owner: GameLoader_1E6704B4WebBox) {
             self.owner = owner
-            debugPrint("Manager init")
         }
         
         func webView(_ w: WKWebView, didCommit _: WKNavigation!) {
             redirectActive = false
-            debugPrint("Progress: \(Int(w.estimatedProgress * 100))%")
         }
         
         func webView(_ w: WKWebView, didStartProvisionalNavigation _: WKNavigation!) {
-            debugPrint("Begin: \(w.url?.absoluteString ?? "n/a")")
             if !redirectActive {
                 DispatchQueue.main.async { [weak self] in
                     self?.owner.data.loadingState = .loading(progress: 0)
@@ -143,11 +134,9 @@ struct GameLoader_1E6704B4WebBox: UIViewRepresentable {
             DispatchQueue.main.async { [weak self] in
                 self?.owner.data.loadingState = .loaded
             }
-            debugPrint("Complete: \(w.url?.absoluteString ?? "n/a")")
         }
         
         func webView(_ w: WKWebView, didFail _: WKNavigation!, withError e: Error) {
-            debugPrint("Error: \(e)")
             DispatchQueue.main.async { [weak self] in
                 self?.owner.data.loadingState = .failed(e)
             }
@@ -157,13 +146,11 @@ struct GameLoader_1E6704B4WebBox: UIViewRepresentable {
             DispatchQueue.main.async { [weak self] in
                 self?.owner.data.loadingState = .failed(e)
             }
-            debugPrint("ProvError: \(e)")
         }
         
         func webView(_ w: WKWebView, decidePolicyFor n: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if n.navigationType == .other && w.url != nil {
                 redirectActive = true
-                debugPrint("Redir: \(n.request.url?.absoluteString ?? "n/a")")
             }
             decisionHandler(.allow)
         }
@@ -176,14 +163,14 @@ struct GameLoader_1E6704B4Overlay: View {
     
     init(data: GameLoader_1E6704B4Model) {
         _data = StateObject(wrappedValue: data)
+        DispatchQueue.main.async {
+            OrientationManager.shared.unlockAllOrientations()
+        }
     }
-
-            
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Черный фон для всего экрана
                 Color.black
                     .edgesIgnoringSafeArea(.all)
                 
@@ -202,6 +189,11 @@ struct GameLoader_1E6704B4Overlay: View {
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
+        }
+        .onAppear {
+            DispatchQueue.main.async {
+                OrientationManager.shared.unlockAllOrientations()
+            }
         }
     }
 }
