@@ -1,21 +1,22 @@
+import Foundation
 import SwiftUI
 import UIKit
 
 class OrientationManager: ObservableObject {
-    @Published var isLandscapeLock = true
+    @Published var isHorizontalLock = true  // Lock to landscape by default
     
     static var shared: OrientationManager = .init()
     
     func lockToLandscape() {
         DispatchQueue.main.async {
-            self.isLandscapeLock = true
+            self.isHorizontalLock = true
             self.forceUpdateOrientation()
         }
     }
     
     func unlockAllOrientations() {
         DispatchQueue.main.async {
-            self.isLandscapeLock = false
+            self.isHorizontalLock = false
             self.forceUpdateOrientation()
         }
     }
@@ -26,11 +27,12 @@ class OrientationManager: ObservableObject {
                 print("No window scene found")
                 return
             }
-            let orientations: UIInterfaceOrientationMask = isLandscapeLock ? .landscape : .allButUpsideDown
+            let orientations: UIInterfaceOrientationMask = isHorizontalLock ? .landscape : .allButUpsideDown
             windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: orientations)) { error in
                 print("Orientation update error: \(error.localizedDescription)")
             }
             
+            // Также обновляем все window controllers
             for window in windowScene.windows {
                 window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
             }

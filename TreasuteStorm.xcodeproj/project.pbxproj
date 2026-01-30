@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DDEC72D22F2D47FE0036D2DA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DDEC72D12F2D47FD0036D2DA /* PrivacyInfo.xcprivacy */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
-		DDEC71FF2F2B98B70036D2DA /* TreasuteStorm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TreasuteStorm.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDEC71FF2F2B98B70036D2DA /* A.Treasure Storm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "A.Treasure Storm.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDEC72D12F2D47FD0036D2DA /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -45,6 +50,7 @@
 		DDEC71F62F2B98B70036D2DA = {
 			isa = PBXGroup;
 			children = (
+				DDEC72D12F2D47FD0036D2DA /* PrivacyInfo.xcprivacy */,
 				DDEC72012F2B98B70036D2DA /* TreasuteStorm */,
 				DDEC72002F2B98B70036D2DA /* Products */,
 			);
@@ -53,7 +59,7 @@
 		DDEC72002F2B98B70036D2DA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DDEC71FF2F2B98B70036D2DA /* TreasuteStorm.app */,
+				DDEC71FF2F2B98B70036D2DA /* A.Treasure Storm.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -80,7 +86,7 @@
 			packageProductDependencies = (
 			);
 			productName = TreasuteStorm;
-			productReference = DDEC71FF2F2B98B70036D2DA /* TreasuteStorm.app */;
+			productReference = DDEC71FF2F2B98B70036D2DA /* A.Treasure Storm.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -122,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDEC72D22F2D47FE0036D2DA /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,8 +285,8 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = f1.TreasuteStorm;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.atreasure.storm;
+				PRODUCT_NAME = "A.Treasure Storm";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -317,8 +324,8 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = f1.TreasuteStorm;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.atreasure.storm;
+				PRODUCT_NAME = "A.Treasure Storm";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

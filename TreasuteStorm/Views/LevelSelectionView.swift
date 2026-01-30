@@ -13,25 +13,22 @@ struct Level {
 // MARK: - Level Selection Content
 struct LevelSelectionContent: View {
     @Binding var currentMenu: MenuState
+    @Binding var selectedLevel: Int
     @ObservedObject private var nav: NavGuard = NavGuard.shared
-    @State private var selectedLevel: Int = 1
-    @State private var levels: [Level] = [
-        Level(number: 1, status: .unlocked),
-        Level(number: 2, status: .unlocked),
-        Level(number: 3, status: .unlocked),
-        Level(number: 4, status: .locked),
-        Level(number: 5, status: .locked),
-        Level(number: 6, status: .locked),
-        Level(number: 7, status: .locked),
-        Level(number: 8, status: .locked),
-        Level(number: 9, status: .locked),
-        Level(number: 10, status: .locked),
-        Level(number: 11, status: .locked),
-        Level(number: 12, status: .locked),
-        Level(number: 13, status: .locked),
-        Level(number: 14, status: .locked),
-        Level(number: 15, status: .locked)
-    ]
+    @State private var levels: [Level] = []
+    
+    init(currentMenu: Binding<MenuState>, selectedLevel: Binding<Int>) {
+        self._currentMenu = currentMenu
+        self._selectedLevel = selectedLevel
+        
+        // Initialize levels based on completion status
+        var levelArray: [Level] = []
+        for i in 1...15 {
+            let status: LevelStatus = NavGuard.shared.isLevelUnlocked(i) ? .unlocked : .locked
+            levelArray.append(Level(number: i, status: status))
+        }
+        _levels = State(initialValue: levelArray)
+    }
     
     var body: some View {
         ZStack {
@@ -42,19 +39,21 @@ struct LevelSelectionContent: View {
                     HStack(spacing: screenWidth * 0.01) {
                         ForEach(0..<5, id: \.self) { col in
                             let levelIndex = row * 5 + col
-                            let level = levels[levelIndex]
-                            
-                            LevelCell(
-                                level: level,
-                                isSelected: selectedLevel == level.number,
-                                onTap: {
-                                    if level.status == .unlocked {
-                                        withAnimation(.easeInOut(duration: 0.3)) {
-                                            selectedLevel = level.number
+                            if levelIndex < levels.count {
+                                let level = levels[levelIndex]
+                                
+                                LevelCell(
+                                    level: level,
+                                    isSelected: selectedLevel == level.number,
+                                    onTap: {
+                                        if level.status == .unlocked {
+                                            withAnimation(.easeInOut(duration: 0.3)) {
+                                                selectedLevel = level.number
+                                            }
                                         }
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -77,6 +76,30 @@ struct LevelSelectionContent: View {
                 .offset(y: screenWidth * 0.135)
             }
         }
+        .onAppear {
+            updateLevels()
+            // Auto-select first incomplete level
+            if selectedLevel == 0 || !nav.isLevelUnlocked(selectedLevel) {
+                for level in levels {
+                    if level.status == .unlocked && !nav.isLevelCompleted(level.number) {
+                        selectedLevel = level.number
+                        break
+                    }
+                }
+                // If all levels completed, select level 1
+                if selectedLevel == 0 {
+                    selectedLevel = 1
+                }
+            }
+        }
+    }
+    
+    func updateLevels() {
+        for i in 0..<levels.count {
+            let levelNumber = levels[i].number
+            let isUnlocked = nav.isLevelUnlocked(levelNumber)
+            levels[i].status = isUnlocked ? .unlocked : .locked
+        }
     }
 }
 
@@ -84,6 +107,7 @@ struct LevelCell: View {
     let level: Level
     let isSelected: Bool
     let onTap: () -> Void
+    @ObservedObject private var nav: NavGuard = NavGuard.shared
     
     var body: some View {
         Button(action: onTap) {
@@ -108,7 +132,7 @@ struct LevelCell: View {
                 
                 // Player icon on selected level (offset up by half frame height)
                 if isSelected {
-                    Image("menuPers_1")
+                    Image(nav.getPlayerImage())
                         .resizable()
                         .scaledToFit()
                         .frame(width: screenWidth * 0.035)

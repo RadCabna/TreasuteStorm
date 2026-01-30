@@ -19,17 +19,13 @@ struct ShopContent: View {
     @ObservedObject private var nav: NavGuard = NavGuard.shared
     @State private var currentItemIndex: Int = 0
     @State private var slideDirection: CGFloat = 0
-    @State private var shopItems: [ShopItem] = [
-        ShopItem(id: 1, imageName: "itemShop_1", price: 100, status: .notPurchased),
-        ShopItem(id: 2, imageName: "itemShop_2", price: 100, status: .notPurchased),
-        ShopItem(id: 3, imageName: "itemShop_3", price: 100, status: .notPurchased),
-        ShopItem(id: 4, imageName: "itemShop_4", price: 100, status: .notPurchased),
-        ShopItem(id: 5, imageName: "itemShop_5", price: 100, status: .notPurchased),
-        ShopItem(id: 6, imageName: "itemShop_6", price: 200, status: .notPurchased)
-    ]
+    @State private var shopItems: [ShopItem] = []
     
     var currentItem: ShopItem {
-        shopItems[currentItemIndex]
+        guard !shopItems.isEmpty && currentItemIndex < shopItems.count else {
+            return ShopItem(id: 1, imageName: "itemShop_1", price: 100, status: .notPurchased)
+        }
+        return shopItems[currentItemIndex]
     }
     
     var body: some View {
@@ -122,16 +118,43 @@ struct ShopContent: View {
                 .offset(y: screenWidth * 0.12)
             }
         }
+        .onAppear {
+            if shopItems.isEmpty {
+                loadShopItems()
+            }
+        }
+    }
+    
+    func loadShopItems() {
+        // Initialize shop items with saved status
+        let purchased = UserDefaults.standard.array(forKey: "purchasedSkins") as? [Int] ?? [6]  // Item 6 is default
+        let selected = UserDefaults.standard.integer(forKey: "selectedSkin")
+        let selectedSkin = selected == 0 ? 6 : selected
+        
+        var items: [ShopItem] = []
+        for i in 1...6 {
+            let price = i == 6 ? 200 : 100
+            var status: ShopItemStatus = .notPurchased
+            
+            if purchased.contains(i) {
+                status = i == selectedSkin ? .selected : .bought
+            }
+            
+            items.append(ShopItem(id: i, imageName: "itemShop_\(i)", price: price, status: status))
+        }
+        
+        shopItems = items
     }
     
     var buttonText: String {
+        let localization = LocalizationManager.shared
         switch currentItem.status {
         case .notPurchased:
-            return "BUY"
+            return localization.localized("BUY")
         case .bought:
-            return "Select"
+            return localization.localized("Select")
         case .selected:
-            return "Selected"
+            return localization.localized("Selected")
         }
     }
     
@@ -146,26 +169,43 @@ struct ShopContent: View {
     }
     
     func handleButtonAction() {
+        guard !shopItems.isEmpty && currentItemIndex < shopItems.count else { return }
+        
         switch currentItem.status {
         case .notPurchased:
             if nav.coins >= currentItem.price {
                 nav.coins -= currentItem.price
                 nav.saveCoins()
                 shopItems[currentItemIndex].status = .bought
+                
+                // Save purchased skins
+                var purchased = UserDefaults.standard.array(forKey: "purchasedSkins") as? [Int] ?? []
+                if !purchased.contains(currentItem.id) {
+                    purchased.append(currentItem.id)
+                    UserDefaults.standard.set(purchased, forKey: "purchasedSkins")
+                }
             }
         case .bought:
+            // Deselect previous selection
             for i in 0..<shopItems.count {
                 if shopItems[i].status == .selected {
                     shopItems[i].status = .bought
                 }
             }
+            
+            // Select current item
             shopItems[currentItemIndex].status = .selected
+            
+            // Save to NavigationGuard
+            nav.selectedSkin = currentItem.id
+            nav.saveSkin()
         case .selected:
             break
         }
     }
     
     func nextItem() {
+        guard !shopItems.isEmpty else { return }
         let nextIndex = (currentItemIndex + 1) % shopItems.count
         
         withAnimation(.easeInOut(duration: 0.3)) {
@@ -183,6 +223,7 @@ struct ShopContent: View {
     }
     
     func previousItem() {
+        guard !shopItems.isEmpty else { return }
         let prevIndex = (currentItemIndex - 1 + shopItems.count) % shopItems.count
         
         withAnimation(.easeInOut(duration: 0.3)) {

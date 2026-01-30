@@ -3,12 +3,13 @@ import SwiftUI
 struct Main: View {
     @ObservedObject private var nav: NavGuard = NavGuard.shared
     @State private var currentMenu: MenuState = .game
+    @State private var selectedLevel: Int = 1
     
     var body: some View {
         ZStack {
             if currentMenu == .playing {
                 // Full screen game view
-                GameScreen(currentMenu: $currentMenu)
+                GameScreen(currentMenu: $currentMenu, selectedLevel: $selectedLevel)
                     .transition(.opacity)
             } else {
                 // Main menu with central block
@@ -20,7 +21,7 @@ struct Main: View {
                         .ignoresSafeArea()
                         .frame(maxHeight: .infinity, alignment: .top)
                     
-                    CentralGameBlock(currentMenu: $currentMenu)
+                    CentralGameBlock(currentMenu: $currentMenu, selectedLevel: $selectedLevel)
                         .offset(y: screenWidth * 0.01)
                     
                     // Arrow back button positioned separately
@@ -75,7 +76,7 @@ struct TopBar: View {
                     Text("\(nav.coins)")
                         .font(.custom("JosefinSans-Bold", size: screenWidth * 0.03))
                         .foregroundColor(.white)
-                        .padding(.leading, screenWidth * 0.02)
+                        .padding(.leading, screenWidth * 0.003)
                 }
                 .padding(.trailing, screenWidth * 0.03)
             }
@@ -86,6 +87,7 @@ struct TopBar: View {
 
 struct CentralGameBlock: View {
     @Binding var currentMenu: MenuState
+    @Binding var selectedLevel: Int
     
     var body: some View {
         ZStack {
@@ -119,7 +121,7 @@ struct CentralGameBlock: View {
                     DailyTaskContent(currentMenu: $currentMenu)
                         .transition(.opacity)
                 } else if currentMenu == .levelSelection {
-                    LevelSelectionContent(currentMenu: $currentMenu)
+                    LevelSelectionContent(currentMenu: $currentMenu, selectedLevel: $selectedLevel)
                         .transition(.opacity)
                 }
             }

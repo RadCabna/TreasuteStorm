@@ -16,13 +16,24 @@ struct DailyTask {
 struct DailyTaskContent: View {
     @Binding var currentMenu: MenuState
     @ObservedObject private var nav: NavGuard = NavGuard.shared
-    @State private var tasks: [DailyTask] = [
-        DailyTask(id: 1, title: "Complete one level", status: .completed),
-        DailyTask(id: 2, title: "Defeat 10 opponents", status: .incomplete)
-    ]
+    @ObservedObject private var localization = LocalizationManager.shared
+    @State private var tasks: [DailyTask] = []
     
     var body: some View {
         DailyTaskGrid(tasks: $tasks, nav: nav)
+            .onAppear {
+                updateTasks()
+            }
+            .onChange(of: localization.currentLanguage) { _ in
+                updateTasks()
+            }
+    }
+    
+    func updateTasks() {
+        tasks = [
+            DailyTask(id: 1, title: localization.localized("Complete one level"), status: .completed),
+            DailyTask(id: 2, title: localization.localized("Defeat 10 opponents"), status: .incomplete)
+        ]
     }
 }
 
@@ -59,19 +70,35 @@ struct DailyTaskGrid: View {
                 Color.clear.frame(height: cellHeight)
                 
                 // Row 1 - Task 1 title
-                TaskTitleRow(title: tasks[0].title)
+                if tasks.count > 0 {
+                    TaskTitleRow(title: tasks[0].title)
+                } else {
+                    Color.clear.frame(height: cellHeight)
+                }
                 
                 // Row 2 - Task 1 reward buttons
-                TaskRewardRow(taskIndex: 0, tasks: $tasks, nav: nav)
+                if tasks.count > 0 {
+                    TaskRewardRow(taskIndex: 0, tasks: $tasks, nav: nav)
+                } else {
+                    Color.clear.frame(height: cellHeight)
+                }
                 
                 // Row 3 - Empty
                 Color.clear.frame(height: cellHeight)
                 
                 // Row 4 - Task 2 title
-                TaskTitleRow(title: tasks[1].title)
+                if tasks.count > 1 {
+                    TaskTitleRow(title: tasks[1].title)
+                } else {
+                    Color.clear.frame(height: cellHeight)
+                }
                 
                 // Row 5 - Task 2 reward buttons
-                TaskRewardRow(taskIndex: 1, tasks: $tasks, nav: nav)
+                if tasks.count > 1 {
+                    TaskRewardRow(taskIndex: 1, tasks: $tasks, nav: nav)
+                } else {
+                    Color.clear.frame(height: cellHeight)
+                }
                 
                 // Row 6 - Empty
                 Color.clear.frame(height: cellHeight)
@@ -113,27 +140,30 @@ struct TaskRewardRow: View {
                 .frame(width: cellWidth * 5 + cellSpacing * 4, height: cellHeight)
             
             // Reward button (last 3 cells width, 1.75x height)
-            if tasks[taskIndex].status == .completed {
-                Button(action: {
-                    claimReward(taskIndex: taskIndex)
-                }) {
+            if taskIndex < tasks.count {
+                if tasks[taskIndex].status == .completed {
+                    Button(action: {
+                        claimReward(taskIndex: taskIndex)
+                    }) {
+                        Image("task10")
+                            .resizable()
+                            .frame(width: cellWidth * 3 + cellSpacing * 2, height: cellHeight * 1.75)
+                            .offset(y: screenWidth*0.005)
+                    }
+                } else if tasks[taskIndex].status == .incomplete {
                     Image("task10")
                         .resizable()
                         .frame(width: cellWidth * 3 + cellSpacing * 2, height: cellHeight * 1.75)
+                        .opacity(0.5)
                         .offset(y: screenWidth*0.005)
                 }
-            } else if tasks[taskIndex].status == .incomplete {
-                Image("task10")
-                    .resizable()
-                    .frame(width: cellWidth * 3 + cellSpacing * 2, height: cellHeight * 1.75)
-                    .opacity(0.5)
-                    .offset(y: screenWidth*0.005)
             }
         }
         .frame(width: cellWidth * 8 + cellSpacing * 7, height: cellHeight)
     }
     
     func claimReward(taskIndex: Int) {
+        guard taskIndex < tasks.count else { return }
         nav.coins += 10
         nav.saveCoins()
         tasks[taskIndex].status = .claimed
